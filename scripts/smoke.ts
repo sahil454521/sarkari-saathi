@@ -1,11 +1,11 @@
 // Real-API smoke check. Uses Gnani credits. Run: node --env-file=.env scripts/smoke.ts
 //
-// Results (fill in after running, see plan Task 2 Step 7):
-//   STT round trip hi/mr:  (pending)
-//   Timbre reads "₹6,000": (pending)
-//   LLM JSON-schema mode:  (pending)
-//   Voice picked:          (pending)
-//   Credits per STT / TTS: (pending)
+// Results 2026-10-19 (plan Task 2 Step 7):
+//   STT round trip hi/mr:  ok; ITN turns "पैंतालीस" into "45"; TTS ~1.5 s, STT ~0.5 s
+//   Timbre reads "₹6,000": yes (Prisma heard "₹6,000" back in hi and mr), so amounts stay as digits
+//   LLM JSON-schema mode:  ok with gemini-flash-latest, 2.3–4.1 s; reasoning_effort "none" made no difference
+//   Voice picked:          Shivani (default) until the user listens to scripts/out/voice-*.mp3
+//   Credits per STT / TTS: 8 calls = 1.50 credits; TTS ≈ ₹0.0027/char, STT ≈ ₹27/hour → ~0.45 credit per turn
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import type { Lang } from "../server/profile.ts";
