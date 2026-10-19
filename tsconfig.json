@@ -3,7 +3,7 @@
     "target": "ES2023",
     "module": "nodenext",
     "lib": ["ES2023", "DOM"],
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "jsx": "react-jsx",
     "strict": true,
     "allowImportingTsExtensions": true,
