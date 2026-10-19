@@ -19,8 +19,9 @@ export type Endpoint = "listening" | "speech-ended" | "no-speech";
 /**
  * Decides when the speaker has finished, from mic loudness samples (RMS, 0–1) taken about every 100 ms.
  * The first 300 ms measure the room's background noise, so a noisy home and a quiet room both work.
+ * silenceMs is 2 s because 1.2 s cut people off while they paused to think mid-answer; a tap still sends at once.
  */
-export function createEndpointer(silenceMs = 1200, noSpeechMs = 8000): (level: number, now: number) => Endpoint {
+export function createEndpointer(silenceMs = 2000, noSpeechMs = 8000): (level: number, now: number) => Endpoint {
   let start: number | null = null, noise = 0, samples = 0, lastLoud: number | null = null;
   return (level, now) => {
     start ??= now;

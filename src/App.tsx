@@ -17,6 +17,9 @@ const LANGS: { lang: Lang; name: string }[] = [
 ];
 const EMPTY: TurnState = { profile: {}, history: [], asked: [] };
 const MAX_RECORD_MS = 25_000;
+// Phone speakers lag the audio element's "ended" by a few hundred ms (more over Bluetooth). Opening the mic
+// sooner switches Android to call mode, which turns the last words down and records them as "noise".
+const LISTEN_DELAY_MS = 700;
 
 export default function App() {
   const [lang, setLang] = useState<Lang | null>(null);
@@ -41,14 +44,19 @@ export default function App() {
   const audio = useRef<HTMLAudioElement | null>(null);
   const conv = useRef(0); // bumped on start over / new language, so replies from an older conversation are dropped
   const langRef = useRef<Lang | null>(null);
+  const listenTimer = useRef(0);
 
   /** listenAfter: open the mic when the reply finishes, so the conversation runs hands-free. */
   function play(src: string, listenAfter = false) {
     // One element for the whole session: the language tap unlocks it, so phones let later replies play unprompted.
     const a = (audio.current ??= new Audio());
+    clearTimeout(listenTimer.current);
     a.pause();
     a.src = src;
-    a.onended = () => { setSpeaking(false); if (listenAfter) step("key"); };
+    a.onended = () => {
+      setSpeaking(false);
+      if (listenAfter) listenTimer.current = window.setTimeout(() => step("key"), LISTEN_DELAY_MS);
+    };
     setReplay(null);
     setSpeaking(true);
     a.play().catch(() => { setSpeaking(false); setReplay({ src, listenAfter }); }); // still blocked: offer a play button
@@ -74,6 +82,7 @@ export default function App() {
     const { state, action } = nextMicState(micRef.current, e, performance.now() - downAt.current);
     setMicState(state);
     if (action === "start") {
+      clearTimeout(listenTimer.current); // a tap during the wait replaces the automatic start
       stopAudio();
       setError(null);
       setTapMode(e !== "down"); // hands-free and Space starts end on silence or a tap, not on release
@@ -158,6 +167,7 @@ export default function App() {
     langRef.current = null;
     stopAudio();
     clearTimeout(timer.current);
+    clearTimeout(listenTimer.current);
     recording.current?.then((r) => r.stop()).catch(() => {});
     recording.current = null;
     setMicState("idle");

@@ -32,13 +32,15 @@ function run(segments: [number, number][]) {
   return { r: "listening", t };
 }
 
-test("ends the turn after 1.2 s of silence following speech", () =>
-  expect(run([[0.01, 300], [0.2, 1500], [0.01, 5000]])).toEqual({ r: "speech-ended", t: 1400 + 1200 }));
+test("ends the turn after 2 s of silence following speech", () =>
+  expect(run([[0.01, 300], [0.2, 1500], [0.01, 5000]])).toEqual({ r: "speech-ended", t: 1400 + 2000 }));
+test("a 1.5 s thinking pause mid-answer does not end the turn", () =>
+  expect(run([[0.01, 300], [0.2, 1000], [0.01, 2500], [0.2, 3000], [0.01, 8000]])).toEqual({ r: "speech-ended", t: 2900 + 2000 }));
 test("a short pause inside a sentence does not end the turn", () =>
-  expect(run([[0.01, 300], [0.2, 1000], [0.01, 1800], [0.2, 2500], [0.01, 6000]])).toEqual({ r: "speech-ended", t: 2400 + 1200 }));
+  expect(run([[0.01, 300], [0.2, 1000], [0.01, 1800], [0.2, 2500], [0.01, 6000]])).toEqual({ r: "speech-ended", t: 2400 + 2000 }));
 test("no speech for 8 s stops listening", () =>
   expect(run([[0.01, 9000]])).toEqual({ r: "no-speech", t: 8000 }));
 test("steady background noise is not mistaken for speech", () =>
   expect(run([[0.06, 9000]])).toEqual({ r: "no-speech", t: 8000 }));
 test("speech is still detected over a noisy background", () =>
-  expect(run([[0.06, 300], [0.3, 1500], [0.06, 5000]])).toEqual({ r: "speech-ended", t: 1400 + 1200 }));
+  expect(run([[0.06, 300], [0.3, 1500], [0.06, 5000]])).toEqual({ r: "speech-ended", t: 1400 + 2000 }));
