@@ -18,24 +18,33 @@ export type Endpoint = "listening" | "speech-ended" | "no-speech";
 
 /**
  * Decides when the speaker has finished, from mic loudness samples (RMS, 0–1) taken about every 100 ms.
- * The first 300 ms measure the room's background noise, so a noisy home and a quiet room both work.
+ * Background noise is the quietest level heard so far (the gaps between words), not the first moments:
+ * hands-free listening opens just as people start answering, and treating that speech as "noise" set the
+ * bar so high on phones that sentences were cut off or missed. Speech is re-judged against the current
+ * floor each time, so words spoken before the floor was known still count.
  * silenceMs is 2 s because 1.2 s cut people off while they paused to think mid-answer; a tap still sends at once.
  */
 export function createEndpointer(silenceMs = 2000, noSpeechMs = 8000) {
-  let start: number | null = null, noise = 0, samples = 0, lastLoud: number | null = null;
-  const threshold = () => Math.max(0.02, noise * 3);
+  let start: number | null = null, floor = Infinity;
+  const heard: [number, number][] = []; // [time, level]; at most 250 in a 25 s recording
+  const threshold = () => Math.max(0.02, floor * 3);
+  const lastLoud = () => {
+    for (let i = heard.length - 1; i >= 0; i--) if (heard[i][1] > threshold()) return heard[i][0];
+    return null;
+  };
   const endpoint = (level: number, now: number): Endpoint => {
     start ??= now;
-    if (now - start < 300) {
-      noise = (noise * samples + level) / ++samples;
-      return "listening";
-    }
-    if (level > threshold()) lastLoud = now;
-    if (lastLoud !== null) return now - lastLoud >= silenceMs ? "speech-ended" : "listening";
+    heard.push([now, level]);
+    if (now - start >= 200) floor = Math.min(floor, level); // the first 200 ms can be mic start-up zeros
+    const loud = lastLoud();
+    if (loud !== null) return now - loud >= silenceMs ? "speech-ended" : "listening";
     return now - start >= noSpeechMs ? "no-speech" : "listening";
   };
   // For the ?debug=1 meter.
-  const inspect = (now: number) => ({ noise, threshold: threshold(), quietMs: lastLoud === null ? null : now - lastLoud });
+  const inspect = (now: number) => {
+    const loud = lastLoud();
+    return { noise: floor === Infinity ? 0 : floor, threshold: threshold(), quietMs: loud === null ? null : now - loud };
+  };
   return Object.assign(endpoint, { inspect });
 }
 

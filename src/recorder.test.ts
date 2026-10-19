@@ -55,3 +55,9 @@ test("inspect reports the calibrated noise, the speech threshold and the quiet t
   expect(s.threshold).toBeCloseTo(0.03);
   expect(s.quietMs).toBe(600);
 });
+
+// From the phone log: auto-listen opens just as people start answering, so the first moments are speech, not room noise.
+test("an answer that starts the instant the mic opens is not cut off", () =>
+  expect(run([[0.2, 600], [0.05, 2500], [0.006, 8000]])).toEqual({ r: "speech-ended", t: 2400 + 2000 }));
+test("a one-word answer right as the mic opens is still sent", () =>
+  expect(run([[0.2, 400], [0.006, 9000]])).toEqual({ r: "speech-ended", t: 300 + 2000 }));
