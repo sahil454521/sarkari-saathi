@@ -30,7 +30,7 @@ export default function App() {
   const [speaking, setSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [typing, setTyping] = useState(false);
-  const [replay, setReplay] = useState<string | null>(null);
+  const [replay, setReplay] = useState<{ src: string; listenAfter: boolean } | null>(null);
 
   // Refs, because recording and requests finish in callbacks created by earlier renders.
   const micRef = useRef<MicState>("idle");
@@ -40,20 +40,22 @@ export default function App() {
   const timer = useRef(0);
   const audio = useRef<HTMLAudioElement | null>(null);
   const conv = useRef(0); // bumped on start over / new language, so replies from an older conversation are dropped
+  const langRef = useRef<Lang | null>(null);
 
-  function play(src: string) {
-    audio.current?.pause();
-    const a = new Audio(src);
-    audio.current = a;
-    a.onended = () => setSpeaking(false);
+  /** listenAfter: open the mic when the reply finishes, so the conversation runs hands-free. */
+  function play(src: string, listenAfter = false) {
+    // One element for the whole session: the language tap unlocks it, so phones let later replies play unprompted.
+    const a = (audio.current ??= new Audio());
+    a.pause();
+    a.src = src;
+    a.onended = () => { setSpeaking(false); if (listenAfter) step("key"); };
     setReplay(null);
     setSpeaking(true);
-    a.play().catch(() => { setSpeaking(false); setReplay(src); }); // autoplay blocked: offer a play button
+    a.play().catch(() => { setSpeaking(false); setReplay({ src, listenAfter }); }); // still blocked: offer a play button
   }
 
   function stopAudio() {
     audio.current?.pause();
-    audio.current = null;
     setSpeaking(false);
   }
 
@@ -67,22 +69,28 @@ export default function App() {
   }
 
   function step(e: MicEvent) {
-    if (!lang) return;
+    const l = langRef.current;
+    if (!l) return;
     const { state, action } = nextMicState(micRef.current, e, performance.now() - downAt.current);
     setMicState(state);
     if (action === "start") {
       stopAudio();
       setError(null);
-      setTapMode(false);
-      recording.current = startRecording();
+      setTapMode(e !== "down"); // hands-free and Space starts end on silence or a tap, not on release
+      // Speech then silence sends the turn like a release would; hearing nothing just stops listening.
+      recording.current = startRecording((why) => step(why === "speech-ended" ? "timeout" : "cancel"));
       recording.current.catch(() => {
         clearTimeout(timer.current);
         recording.current = null;
         setMicState("idle");
-        setError(UI.micDenied[lang]);
+        setError(UI.micDenied[l]);
         setTyping(true);
       });
       timer.current = window.setTimeout(() => step("timeout"), MAX_RECORD_MS);
+    } else if (action === "cancel") {
+      clearTimeout(timer.current);
+      recording.current?.then((r) => r.stop()).catch(() => {});
+      recording.current = null;
     } else if (e === "up" && state === "recording") {
       setTapMode(true); // a quick tap: keep listening until the next tap
     } else if (action === "stop") {
@@ -96,7 +104,7 @@ export default function App() {
   }
 
   async function send(input: { blob: Blob } | { text: string }, id: number) {
-    const l = lang!;
+    const l = langRef.current!;
     try {
       const base = { lang: l, state: turnRef.current };
       const res = await sendTurn("text" in input
@@ -109,7 +117,8 @@ export default function App() {
       setSaid(res.reply);
       setPhase(res.phase);
       setSchemes(res.schemes);
-      if (res.audio) play(`data:audio/mpeg;base64,${res.audio}`);
+      // Keep listening after spoken turns; someone typing may not be able to speak.
+      if (res.audio) play(`data:audio/mpeg;base64,${res.audio}`, res.phase === "asking" && "blob" in input);
     } catch (err) {
       if (id === conv.current) setError(ERRORS[(err as Error).message as ApiError]?.[l] ?? ERRORS.upstream[l]);
     } finally {
@@ -131,6 +140,7 @@ export default function App() {
 
   function chooseLang(l: Lang) {
     conv.current++;
+    langRef.current = l;
     document.documentElement.lang = l;
     turnRef.current = EMPTY;
     setTurn(EMPTY);
@@ -140,11 +150,12 @@ export default function App() {
     setPhase("asking");
     setSchemes([]);
     setError(null);
-    play(speakUrl(l));
+    play(speakUrl(l), true);
   }
 
   function startOver() {
     conv.current++;
+    langRef.current = null;
     stopAudio();
     clearTimeout(timer.current);
     recording.current?.then((r) => r.stop()).catch(() => {});
@@ -228,7 +239,7 @@ export default function App() {
             <section className="sticky bottom-0 -mx-4 flex flex-col items-center gap-3 bg-paper/95 px-4 pt-3 pb-4 backdrop-blur">
               {error && <p role="alert" className="w-full rounded-lg border border-alert/30 bg-sheet px-3 py-2 text-base text-alert">{error}</p>}
               {replay && (
-                <button onClick={() => play(replay)} className="min-h-12 rounded-full border-2 border-ink px-5 font-semibold">▶ {UI.listen[lang]}</button>
+                <button onClick={() => play(replay.src, replay.listenAfter)} className="min-h-12 rounded-full border-2 border-ink px-5 font-semibold">▶ {UI.listen[lang]}</button>
               )}
               <button
                 className={`mic grid size-28 place-items-center rounded-full text-sheet shadow-lg transition-colors ${mic === "recording" ? "listening bg-stamp" : mic === "busy" ? "cursor-wait bg-ink/60" : "bg-ink"}`}

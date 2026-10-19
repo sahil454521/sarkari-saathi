@@ -8,7 +8,7 @@ export const UI = {
   formTitle: { hi: "आपकी जानकारी", mr: "तुमची माहिती", en: "Your details" },
   holdToSpeak: { hi: "दबाकर बोलिए", mr: "दाबून बोला", en: "Hold to speak" },
   listening: { hi: "सुन रही हूँ… छोड़ने पर भेजूँगी", mr: "ऐकत आहे… सोडल्यावर पाठवेन", en: "Listening… release to send" },
-  tapToStop: { hi: "सुन रही हूँ… भेजने के लिए फिर दबाएँ", mr: "ऐकत आहे… पाठवण्यासाठी पुन्हा दाबा", en: "Listening… tap again to send" },
+  tapToStop: { hi: "सुन रही हूँ… बोलिए, रुकते ही भेज दूँगी", mr: "ऐकत आहे… बोला, थांबताच पाठवेन", en: "Listening… speak, I'll send when you pause" },
   thinking: { hi: "सोच रही हूँ…", mr: "विचार करत आहे…", en: "Thinking…" },
   speaking: { hi: "बोल रही हूँ · बीच में बोलने के लिए दबाएँ", mr: "बोलत आहे · मधेच बोलण्यासाठी दाबा", en: "Speaking · press to interrupt" },
   micLabel: { hi: "माइक", mr: "माइक", en: "Microphone" },
