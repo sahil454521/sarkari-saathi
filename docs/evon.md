@@ -8,7 +8,7 @@ Evon v3.3 is a 30B-parameter mixture-of-experts model (about 3.5B active per tok
 
 ## What it costs
 
-One A100 80 GB (or H100 80 GB) on RunPod or Vast.ai, roughly $1.2–2 per hour. Budget 2–3 hours for setup, testing and recording: about ₹300–500. Stop the pod as soon as you finish; billing runs while it's on.
+One A100 80 GB (or H100 80 GB) on RunPod or Vast.ai, roughly $1.2 to $2 per hour. Budget 2 to 3 hours for setup, testing and recording: about ₹300 to ₹500. Stop the pod as soon as you finish; billing runs while it's on.
 
 ## Steps
 
