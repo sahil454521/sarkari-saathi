@@ -57,6 +57,11 @@ app.get("/api/speak", async (req, res) => {
   }
 });
 
+// TEMP (deploy check): which IP does Express see behind the Render proxies? Remove after setting trust proxy.
+app.get("/api/ip", (req, res) => {
+  res.json({ ip: req.ip, ips: req.ips, xff: req.get("x-forwarded-for"), trueClientIp: req.get("true-client-ip"), cf: req.get("cf-connecting-ip"), realIp: req.get("x-real-ip") });
+});
+
 app.use(express.static(fileURLToPath(new URL("../dist", import.meta.url))));
 
 // Body-parser errors: oversized body → 413, malformed JSON → 400.
