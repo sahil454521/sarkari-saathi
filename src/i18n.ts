@@ -35,7 +35,7 @@ export const UI = {
 } satisfies Record<string, T>;
 
 export const ERRORS: Record<"limit" | "too_large" | "upstream" | "bad_request" | "network", T> = {
-  limit: { hi: "अभी बहुत लोग इस्तेमाल कर रहे हैं। कुछ मिनट बाद फिर कोशिश करें।", mr: "सध्या खूप वापर सुरू आहे. काही मिनिटांनी पुन्हा प्रयत्न करा.", en: "Too many requests right now. Try again in a few minutes." },
+  limit: { hi: "अभी बहुत लोग इस्तेमाल कर रहे हैं। थोड़ी देर बाद फिर कोशिश करें।", mr: "सध्या खूप वापर सुरू आहे. थोड्या वेळाने पुन्हा प्रयत्न करा.", en: "Too many requests right now. Try again later." },
   too_large: { hi: "रिकॉर्डिंग बहुत लंबी है। छोटा करके बोलिए।", mr: "रेकॉर्डिंग खूप मोठं आहे. थोडक्यात बोला.", en: "That recording is too long. Keep it shorter." },
   upstream: { hi: "सर्वर से जवाब नहीं मिला। फिर से बोलिए।", mr: "सर्व्हरकडून उत्तर आलं नाही. पुन्हा बोला.", en: "The server didn't respond. Please say it again." },
   bad_request: { hi: "कुछ गड़बड़ हुई। शुरू से करें।", mr: "काहीतरी चुकलं. पुन्हा सुरू करा.", en: "Something went wrong. Start over." },

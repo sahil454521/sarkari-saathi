@@ -21,7 +21,8 @@ app.use("/api", (req, res, next) => {
 app.use(express.json({ limit: "3mb" }));
 
 const perIp = createLimiter(30, 10 * 60_000);
-const daily = createLimiter(300, 24 * 60 * 60_000); // ~0.45 Gnani credit per turn; keeps worst case ≈ 135 credits/day
+// shortcut: counts live in memory, so a restart (Render free tier sleeps after 15 idle min) resets them; watch the Gnani credits dashboard, and move counts to a store if abuse shows up
+const daily = createLimiter(300, 24 * 60 * 60_000); // ~0.45 Gnani credit per turn
 
 app.post("/api/turn", async (req, res) => {
   if (!perIp(req.ip ?? "unknown") || !daily("global")) { res.status(429).json({ error: "limit" }); return; }

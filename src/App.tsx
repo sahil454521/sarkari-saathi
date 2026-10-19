@@ -39,6 +39,7 @@ export default function App() {
   const recording = useRef<ReturnType<typeof startRecording> | null>(null);
   const timer = useRef(0);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const conv = useRef(0); // bumped on start over / new language, so replies from an older conversation are dropped
 
   function play(src: string) {
     audio.current?.pause();
@@ -89,17 +90,19 @@ export default function App() {
       const rec = recording.current;
       recording.current = null;
       if (!rec) return finish();
-      rec.then((r) => r.stop()).then((blob) => (blob.size ? send({ blob }) : finish()), finish);
+      const id = conv.current;
+      rec.then((r) => r.stop()).then((blob) => (blob.size ? send({ blob }, id) : finish()), finish);
     }
   }
 
-  async function send(input: { blob: Blob } | { text: string }) {
+  async function send(input: { blob: Blob } | { text: string }, id: number) {
     const l = lang!;
     try {
       const base = { lang: l, state: turnRef.current };
       const res = await sendTurn("text" in input
         ? { ...base, text: input.text }
         : await toWav16k(input.blob).then(async (wav) => ({ ...base, audio: await blobToBase64(wav), mime: wav.type })));
+      if (id !== conv.current) return;
       turnRef.current = res.state;
       setTurn(res.state);
       setHeard(res.heard);
@@ -108,9 +111,9 @@ export default function App() {
       setSchemes(res.schemes);
       if (res.audio) play(`data:audio/mpeg;base64,${res.audio}`);
     } catch (err) {
-      setError(ERRORS[(err as Error).message as ApiError]?.[l] ?? ERRORS.upstream[l]);
+      if (id === conv.current) setError(ERRORS[(err as Error).message as ApiError]?.[l] ?? ERRORS.upstream[l]);
     } finally {
-      finish();
+      if (id === conv.current) finish();
     }
   }
 
@@ -123,10 +126,11 @@ export default function App() {
     stopAudio();
     setError(null);
     setMicState("busy");
-    send({ text });
+    send({ text }, conv.current);
   }
 
   function chooseLang(l: Lang) {
+    conv.current++;
     document.documentElement.lang = l;
     turnRef.current = EMPTY;
     setTurn(EMPTY);
@@ -140,6 +144,7 @@ export default function App() {
   }
 
   function startOver() {
+    conv.current++;
     stopAudio();
     clearTimeout(timer.current);
     recording.current?.then((r) => r.stop()).catch(() => {});
