@@ -153,7 +153,7 @@ export const SCHEMES: Scheme[] = [
   {
     id: "ujjwala",
     url: "https://www.pmuy.gov.in",
-    source: "https://www.publicservicesmap.in/schemes/pradhan-mantri-ujjwala-yojana-2-0--pmuy2",
+    source: "https://www.pmuy.gov.in/about.html",
     checkedOn: CHECKED,
     check: (p) => decide(criteria(p, {
       gender: (g) => g === "female", age: (a) => a >= 18, hasLpgConnection: (v) => v === false, rationCard: poorCard,
@@ -174,15 +174,15 @@ export const SCHEMES: Scheme[] = [
   {
     id: "pmmvy",
     url: "https://pmmvy.wcd.gov.in",
-    source: "https://www.publicservicesmap.in/schemes/pradhan-mantri-matru-vandana-yojana--pmmvy?lang=en",
+    source: "https://wcd.gov.in/women/pradhan-mantri-matru-vandana-yojna",
     checkedOn: CHECKED,
     check: (p) => decide(criteria(p, {
       gender: (g) => g === "female", age: (a) => a >= 18 && a <= 50, isPregnant: (v) => v === true,
-      occupation: (o) => o !== "govt_job", annualFamilyIncome: (i) => i < 800000,
+      occupation: (o) => o !== "govt_job",
     }), () => likely({
-      en: "Register at your Anganwadi centre; it is for the first child, or the second if she is a girl.",
-      hi: "अपने आंगनवाड़ी केंद्र पर पंजीकरण कराएँ; यह पहले बच्चे के लिए है, या दूसरी संतान बेटी हो तो।",
-      mr: "तुमच्या अंगणवाडी केंद्रात नोंदणी करा; हे पहिल्या अपत्यासाठी आहे, किंवा दुसरी मुलगी असल्यास.",
+      en: "For women from disadvantaged groups (for example SC/ST, BPL or e-Shram card holders), for the first child or a second child who is a girl. Register at your Anganwadi centre.",
+      hi: "वंचित वर्गों की महिलाओं के लिए (जैसे SC/ST, बीपीएल या ई-श्रम कार्ड धारक), पहले बच्चे पर या दूसरी संतान बेटी हो तो। अपने आंगनवाड़ी केंद्र पर पंजीकरण कराएँ।",
+      mr: "वंचित घटकांतील महिलांसाठी (उदा. SC/ST, बीपीएल किंवा ई-श्रम कार्डधारक), पहिल्या अपत्यासाठी किंवा दुसरी मुलगी असल्यास. तुमच्या अंगणवाडी केंद्रात नोंदणी करा.",
     })),
     text: {
       en: { name: "PM Matru Vandana Yojana", benefit: "₹5,000 for pregnant women for the first child, or ₹6,000 if the second child is a girl, paid to your bank account.",
@@ -242,7 +242,7 @@ export const SCHEMES: Scheme[] = [
   {
     id: "sukanya",
     url: "https://www.indiapost.gov.in",
-    source: "https://www.valueresearchonline.com/stories/50239/all-you-need-to-know-about-sukanya-samriddhi-yojana",
+    source: "https://www.nsiindia.gov.in/writereaddata/SchemeRules/SukanyaSamriddhiAccountSchemeRule.pdf",
     checkedOn: CHECKED,
     check: (p) => decide(criteria(p, { daughterAges: (d: number[]) => d.some((a) => a < 10) }), () => ELIGIBLE),
     text: {
@@ -257,7 +257,7 @@ export const SCHEMES: Scheme[] = [
   {
     id: "apy",
     url: "https://financialservices.gov.in",
-    source: "https://www.gconnect.in/orders-in-brief/pension/income-tax-payers-shall-not-eligible-atal-pension-yojana.html",
+    source: "https://pfrda.org.in/w/faqs/atal-pension-yojana",
     checkedOn: CHECKED,
     check: (p) => decide(criteria(p, { age: (a) => a >= 18 && a <= 40, paysIncomeTax: (v) => v === false }), () => ELIGIBLE),
     text: {
@@ -291,7 +291,7 @@ export const SCHEMES: Scheme[] = [
   {
     id: "pm-svanidhi",
     url: "https://pmsvanidhi.mohua.gov.in",
-    source: "https://www.outlookmoney.com/news/pm-svanidhi-2025-updated-loan-limits-eligibility-and-how-street-vendors-can-apply",
+    source: "https://pmsvanidhi.mohua.gov.in",
     checkedOn: CHECKED,
     check: (p) => decide(criteria(p, { occupation: (o) => o === "street_vendor" }), () => likely({
       en: "You need a vending certificate or a recommendation letter from your municipality or Town Vending Committee.",
