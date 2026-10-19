@@ -31,8 +31,11 @@ export const FIELDS: Field[] = [
 export function mergeProfile(p: Profile, facts: Record<string, unknown>): Profile {
   const out: Record<string, unknown> = { ...p };
   for (const key of FIELDS) {
-    const value = facts[key];
+    let value = facts[key];
     if (value === null || value === undefined) continue;
+    // "a six-month-old daughter" arrives as 0.5; ages are whole years
+    if (key === "age" && typeof value === "number") value = Math.floor(value);
+    if (key === "daughterAges" && Array.isArray(value)) value = value.map((a) => (typeof a === "number" ? Math.floor(a) : a));
     if (ProfileSchema.shape[key].safeParse(value).success) out[key] = value;
   }
   return out as Profile;

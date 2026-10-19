@@ -72,7 +72,7 @@ export async function runTurn(req: TurnRequest, deps: Deps): Promise<TurnRespons
     ({ heard, reply: SAY_AGAIN[lang], audio: null, state, phase: "asking", schemes: [] });
 
   const heard = (req.text ?? await deps.stt(new Blob([Buffer.from(req.audio!, "base64")], { type: req.mime }), lang)).trim();
-  if (!/\p{L}/u.test(heard)) return withAudio(sayAgain(heard), lang, deps);
+  if (!/[\p{L}\p{N}]/u.test(heard)) return withAudio(sayAgain(heard), lang, deps); // "45" alone is a real answer
 
   const messages: ChatMessage[] = [
     { role: "system", content: SYSTEM_PROMPT.replace("{LANGUAGE}", LANGUAGE[lang]) },

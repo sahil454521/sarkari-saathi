@@ -12,3 +12,6 @@ test("corrections overwrite earlier values", () => {
 test("adult daughter ages are valid", () => {
   expect(mergeProfile({}, { daughterAges: [45] })).toEqual({ daughterAges: [45] });
 });
+test("fractional ages round down to whole years instead of being dropped", () => {
+  expect(mergeProfile({}, { age: 45.7, daughterAges: [0.5, 7] })).toEqual({ age: 45, daughterAges: [0, 7] });
+});

@@ -90,3 +90,10 @@ test("history keeps last 6", async () => {
   expect(out.state.history.at(-2)).toEqual({ role: "user", text: "मैं 45 साल की हूँ" });
   expect(out.state.history.at(-1)).toEqual({ role: "assistant", text: out.reply });
 });
+
+test.each(["45", "₹90,000", "2"])("bare number answer %j goes to the LLM, not 'say again'", async (heard) => {
+  const d = deps([llm({ age: 45 }, "अच्छा।")], { heard });
+  const out = await runTurn(spoken(), d);
+  expect(d.chat).toHaveBeenCalledTimes(1);
+  expect(out.reply).not.toBe(SAY_AGAIN.hi);
+});
