@@ -1,6 +1,6 @@
 # Post drafts
 
-Replace `[LINK]` and `[GITHUB]` before posting, and tag Gnani AI's page (type "@Gnani" and pick it from the list). If a family member's story is behind this, add it as a second paragraph: a true personal line will do more than anything below.
+Tag Gnani AI's page (type "@Gnani" and pick it from the list). If a family member's story is behind this, add it as a second paragraph: a true personal line will do more than anything below.
 
 If you record the demo on Gemini rather than Evon, replace "Gnani Evon" with "an LLM" everywhere below; the contest rules ban misleading demos. Check Gnani AI's exact handle on X before posting.
 
@@ -25,8 +25,8 @@ If you record the demo on Gemini rather than Evon, replace "Gnani Evon" with "an
 >
 > Each turn takes about 3 seconds, and nothing she says is stored.
 >
-> Try it: [LINK]
-> Code: [GITHUB]
+> Try it: https://sarkari-saathi-kjgb.onrender.com
+> Code: https://github.com/sahil454521/sarkari-saathi
 >
 > If you've ever filled a scheme form for a parent or grandparent, which scheme should I add next?
 >
@@ -44,8 +44,8 @@ I built Sarkari Saathi: talk to it in Marathi, Hindi or English and it tells you
 
 4/ The rule I built it on: the AI listens, the code decides. Eligibility for all 13 schemes is plain code checked against the official pages, so it can't invent a scheme or promise money.
 
-5/ Try it: [LINK]
-Code: [GITHUB]
+5/ Try it: https://sarkari-saathi-kjgb.onrender.com
+Code: https://github.com/sahil454521/sarkari-saathi
 Which scheme should I add next?
 
 ## Submission form

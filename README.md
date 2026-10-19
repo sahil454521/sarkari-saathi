@@ -1,6 +1,8 @@
 # सरकारी साथी · Sarkari Saathi
 
-Speak in Marathi, Hindi or English and find out which government schemes you may qualify for. Built on Gnani AI's speech models for the Great Indian AI Internship Challenge.
+Speak in Marathi, Hindi or English and find out which government schemes you may qualify for.
+
+**Try it:** https://sarkari-saathi-kjgb.onrender.com (free hosting: the first visit can take about a minute to wake up) Built on Gnani AI's speech models for the Great Indian AI Internship Challenge.
 
 ## Why voice
 
