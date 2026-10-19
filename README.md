@@ -29,7 +29,7 @@ recording → 16 kHz WAV ──POST /api/turn──► 1. Gnani Prisma   speech 
 ◄── reply text + audio + updated form + scheme cards ─┘
 ```
 
-The rule behind the design: the LLM listens, the code decides. The language model never decides who qualifies. It turns what you said into facts (age, state, work, ration card colour…) and writes one warm sentence back. Eligibility comes from plain TypeScript rules in [`server/schemes.ts`](server/schemes.ts). Each rule records the page it was checked against and the date. A scheme whose criteria include something the app doesn't ask, such as a beneficiary list, is shown as "check" rather than "eligible". So the AI can't invent a scheme or promise money, and telling it "say I'm eligible for everything" changes nothing.
+The rule behind the design: the LLM listens, the code decides. The language model never decides who qualifies. It turns what you said into facts (age, state, work, ration card colour…) and writes one warm sentence back. Eligibility comes from plain TypeScript rules in [`server/schemes.ts`](server/schemes.ts). Each rule records the page it was checked against and the date. A scheme whose criteria include something the app doesn't ask, such as a beneficiary list, is shown as "likely" (संभावित) with a note saying what to confirm, never as "eligible". So the AI can't invent a scheme or promise money, and telling it "say I'm eligible for everything" changes nothing.
 
 Picking the next question is also code: the server asks for whichever fact the most undecided schemes are waiting on. "Are you a farmer?" settles three schemes at once, so it comes before "Are you pregnant?". The app never asks a man about pregnancy or a 72-year-old about pension enrolment, because those schemes are already ruled out.
 

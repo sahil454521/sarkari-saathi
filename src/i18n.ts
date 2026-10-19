@@ -18,7 +18,7 @@ export const UI = {
   send: { hi: "भेजें", mr: "पाठवा", en: "Send" },
   startOver: { hi: "शुरू से", mr: "पुन्हा सुरू करा", en: "Start over" },
   eligible: { hi: "पात्र", mr: "पात्र", en: "Eligible" },
-  likely: { hi: "जाँच करें", mr: "तपासा", en: "Check" },
+  likely: { hi: "संभावित", mr: "संभाव्य", en: "Likely" },
   documents: { hi: "ज़रूरी कागज़", mr: "लागणारी कागदपत्रे", en: "Documents" },
   listen: { hi: "सुनें", mr: "ऐका", en: "Listen" },
   officialSite: { hi: "आधिकारिक वेबसाइट", mr: "अधिकृत संकेतस्थळ", en: "Official website" },

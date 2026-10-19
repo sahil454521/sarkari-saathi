@@ -36,7 +36,7 @@ test("complete profile → results, eligible cards first", async () => {
   const out = await runTurn(typed("बस इतना ही", { ...empty(), profile: sunita }), deps([llm({}, "ठीक है।")]));
   expect(out.phase).toBe("results");
   expect(out.schemes.map(c => c.id)).toEqual(
-    ["pm-kisan", "namo-shetkari", "mjpjay", "ladki-bahin", "lek-ladki", "sukanya", "pmfby", "pm-jay"]);
+    ["mjpjay", "sukanya", "pm-kisan", "namo-shetkari", "pmfby", "pm-jay", "ladki-bahin", "lek-ladki"]);
   expect(out.reply).toContain(resultsSummary("hi", out.schemes.map(c => c.name)));
 });
 

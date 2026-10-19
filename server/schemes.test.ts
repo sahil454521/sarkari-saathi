@@ -6,8 +6,9 @@ import { sunita, ramesh, kamla } from "./fixtures.ts";
 const shown = (p: Profile): Record<string, string> =>
   Object.fromEntries(SCHEMES.map(s => [s.id, s.check(p).status]).filter(([, st]) => st === "eligible" || st === "likely"));
 
-test("Sunita", () => expect(shown(sunita)).toEqual({ "pm-kisan": "eligible", "namo-shetkari": "eligible", pmfby: "likely",
-  "pm-jay": "likely", mjpjay: "eligible", "ladki-bahin": "eligible", "lek-ladki": "eligible", sukanya: "eligible" }));
+// Unasked official criteria (PM-KISAN land date, Ladki Bahin offset, Lek Ladki birth order) keep these at "likely" (spec §8).
+test("Sunita", () => expect(shown(sunita)).toEqual({ "pm-kisan": "likely", "namo-shetkari": "likely", pmfby: "likely",
+  "pm-jay": "likely", mjpjay: "eligible", "ladki-bahin": "likely", "lek-ladki": "likely", sukanya: "eligible" }));
 test("Ramesh", () => expect(shown(ramesh)).toEqual({ "pm-jay": "likely", mjpjay: "eligible", apy: "eligible", "pm-svanidhi": "likely" }));
 test("Kamla (70+, adult daughter)", () => expect(shown(kamla)).toEqual({ "pm-jay": "eligible", mjpjay: "eligible", ujjwala: "likely" }));
 test("full personas leave nothing undecided", () =>
@@ -19,7 +20,7 @@ test("income-tax payer loses pm-kisan, namo-shetkari, ladki-bahin", () => {
 test("outside Maharashtra: no state schemes", () => {
   const s = shown({ ...sunita, state: "Bihar" });
   ["namo-shetkari", "mjpjay", "ladki-bahin", "lek-ladki"].forEach(id => expect(s[id]).toBeUndefined());
-  expect(s["pm-kisan"]).toBe("eligible");
+  expect(s["pm-kisan"]).toBe("likely"); // central scheme still shown outside Maharashtra
 });
 test("state spelling variants count as Maharashtra", () =>
   expect(shown({ ...sunita, state: " MAHARASHTRA " })).toEqual(shown(sunita)));

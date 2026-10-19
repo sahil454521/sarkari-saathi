@@ -46,6 +46,12 @@ const poorCard = (c: string) => c === "yellow" || c === "orange";
 const CHECKED = "2026-10-19";
 
 const PM_KISAN: Conds = { occupation: (o) => o === "farmer", ownsFarmland: (v) => v === true, paysIncomeTax: (v) => v === false };
+// Criteria we don't ask about (land date, family exclusions) keep PM-KISAN at "likely" (spec §8).
+const PM_KISAN_NOTE: Record<Lang, string> = {
+  en: "The land must have been in your family's name by 1 February 2019 (after that, only by inheritance). Families with an income-tax payer, a government employee, a pensioner on ₹10,000+ a month or a registered professional are excluded.",
+  hi: "ज़मीन 1 फ़रवरी 2019 तक परिवार के नाम होनी चाहिए (उसके बाद सिर्फ़ विरासत से)। जिस परिवार में कोई इनकम टैक्स भरता हो, सरकारी कर्मचारी हो, ₹10,000+ मासिक पेंशन पाता हो या डॉक्टर, वकील जैसा पंजीकृत पेशेवर हो, उसे यह नहीं मिलता।",
+  mr: "जमीन 1 फेब्रुवारी 2019 पर्यंत कुटुंबाच्या नावावर असावी (त्यानंतर फक्त वारसाने). कुटुंबात आयकर भरणारे, सरकारी कर्मचारी, ₹10,000+ मासिक पेन्शनधारक किंवा डॉक्टर, वकील असे नोंदणीकृत व्यावसायिक असल्यास योजना मिळत नाही.",
+};
 
 export const SCHEMES: Scheme[] = [
   {
@@ -53,7 +59,7 @@ export const SCHEMES: Scheme[] = [
     url: "https://pmkisan.gov.in",
     source: "https://pmkisan.gov.in/Documents/RevisedFAQ.pdf",
     checkedOn: CHECKED,
-    check: (p) => decide(criteria(p, PM_KISAN), () => ELIGIBLE),
+    check: (p) => decide(criteria(p, PM_KISAN), () => likely(PM_KISAN_NOTE)),
     text: {
       en: { name: "PM-KISAN", benefit: "₹6,000 a year straight into your bank account, in three instalments of ₹2,000.",
         documents: ["Aadhaar card", "Land record (7/12 extract)", "Bank passbook"] },
@@ -68,7 +74,11 @@ export const SCHEMES: Scheme[] = [
     url: "https://nsmny.mahait.org",
     source: "https://en.vikaspedia.in/viewcontent/schemesall/state-specific-schemes/welfare-schemes-of-maharashtra/namo-shetkari-maha-samman-nidhi-yojana?lgn=en",
     checkedOn: CHECKED,
-    check: (p) => decide(criteria(p, { ...PM_KISAN, state: inMaharashtra }), () => ELIGIBLE),
+    check: (p) => decide(criteria(p, { ...PM_KISAN, state: inMaharashtra }), () => likely({
+      en: "Paid automatically to PM-KISAN beneficiaries in Maharashtra, so the PM-KISAN conditions apply.",
+      hi: "महाराष्ट्र के पीएम-किसान लाभार्थियों को अपने-आप मिलता है, इसलिए पीएम-किसान की शर्तें लागू हैं।",
+      mr: "महाराष्ट्रातील पीएम-किसान लाभार्थ्यांना आपोआप मिळते, त्यामुळे पीएम-किसानच्या अटी लागू आहेत.",
+    })),
     text: {
       en: { name: "Namo Shetkari Mahasanman Nidhi", benefit: "Another ₹6,000 a year from Maharashtra on top of PM-KISAN, with no separate form.",
         documents: ["Aadhaar card", "PM-KISAN registration", "Aadhaar-linked bank account"] },
@@ -191,13 +201,18 @@ export const SCHEMES: Scheme[] = [
     check: (p) => decide(criteria(p, {
       state: inMaharashtra, gender: (g) => g === "female", age: (a) => a >= 21 && a <= 65,
       annualFamilyIncome: (i) => i <= 250000, paysIncomeTax: (v) => v === false, occupation: (o) => o !== "govt_job",
-    }), () => ELIGIBLE),
+    }), () => likely({
+      // Offset reported since April 2025 (Scroll, Business Today): Namo Shetkari women get only the ₹500 top-up.
+      en: "If you already get Namo Shetkari or another state benefit, you receive only the top-up to ₹1,500 (₹500 for Namo Shetkari farmers). Families with a four-wheeler or a government employee are excluded.",
+      hi: "अगर आपको पहले से नमो शेतकरी या कोई दूसरी राज्य सहायता मिलती है, तो सिर्फ़ ₹1,500 तक की बाकी रकम मिलती है (नमो शेतकरी किसानों को ₹500)। जिस परिवार के पास चार-पहिया गाड़ी हो या कोई सरकारी कर्मचारी हो, उसे यह नहीं मिलता।",
+      mr: "तुम्हाला आधीच नमो शेतकरी किंवा दुसरी राज्य मदत मिळत असल्यास फक्त ₹1,500 पर्यंतची उरलेली रक्कम मिळते (नमो शेतकरी शेतकऱ्यांना ₹500). कुटुंबाकडे चारचाकी असल्यास किंवा कुटुंबात सरकारी कर्मचारी असल्यास योजना मिळत नाही.",
+    })),
     text: {
-      en: { name: "Mukhyamantri Majhi Ladki Bahin Yojana", benefit: "₹1,500 every month into your Aadhaar-linked bank account.",
+      en: { name: "Mukhyamantri Majhi Ladki Bahin Yojana", benefit: "Up to ₹1,500 every month into your Aadhaar-linked bank account.",
         documents: ["Aadhaar card", "Maharashtra domicile certificate or ration card", "Income certificate (a yellow or orange ration card also works)", "Aadhaar-linked bank account"] },
-      hi: { name: "मुख्यमंत्री माझी लाडकी बहीण योजना", benefit: "हर महीने ₹1,500 सीधे आधार से जुड़े बैंक खाते में।",
+      hi: { name: "मुख्यमंत्री माझी लाडकी बहीण योजना", benefit: "हर महीने ₹1,500 तक, सीधे आधार से जुड़े बैंक खाते में।",
         documents: ["आधार कार्ड", "महाराष्ट्र अधिवास प्रमाणपत्र या राशन कार्ड", "आय प्रमाणपत्र (पीला या केसरी राशन कार्ड भी चलेगा)", "आधार से जुड़ा बैंक खाता"] },
-      mr: { name: "मुख्यमंत्री माझी लाडकी बहीण योजना", benefit: "दरमहा ₹1,500 थेट आधारशी जोडलेल्या बँक खात्यात.",
+      mr: { name: "मुख्यमंत्री माझी लाडकी बहीण योजना", benefit: "दरमहा ₹1,500 पर्यंत, थेट आधारशी जोडलेल्या बँक खात्यात.",
         documents: ["आधार कार्ड", "महाराष्ट्र अधिवास प्रमाणपत्र किंवा रेशन कार्ड", "उत्पन्नाचा दाखला (पिवळे किंवा केशरी रेशन कार्ड चालेल)", "आधारशी जोडलेले बँक खाते"] },
     },
   },
@@ -210,10 +225,10 @@ export const SCHEMES: Scheme[] = [
     check: (p) => decide(criteria(p, {
       state: inMaharashtra, rationCard: poorCard, annualFamilyIncome: (i) => i <= 100000,
       daughterAges: (d: number[]) => d.some((a) => a <= 3),
-    }), () => p.daughterAges!.some((a) => a <= 2) ? ELIGIBLE : likely({
-      en: "Only for girls born on or after 1 April 2023; check the date on the birth certificate.",
-      hi: "सिर्फ़ 1 अप्रैल 2023 या उसके बाद जन्मी बेटियों के लिए; जन्म प्रमाणपत्र की तारीख देखें।",
-      mr: "फक्त 1 एप्रिल 2023 किंवा त्यानंतर जन्मलेल्या मुलींसाठी; जन्म दाखल्यावरील तारीख तपासा.",
+    }), () => likely({
+      en: "Only for girls born on or after 1 April 2023 who are the family's first or second child; check the birth certificate.",
+      hi: "सिर्फ़ 1 अप्रैल 2023 या उसके बाद जन्मी उन बेटियों के लिए जो परिवार की पहली या दूसरी संतान हों; जन्म प्रमाणपत्र देखें।",
+      mr: "फक्त 1 एप्रिल 2023 किंवा त्यानंतर जन्मलेल्या, कुटुंबातील पहिल्या किंवा दुसऱ्या अपत्य असलेल्या मुलींसाठी; जन्म दाखला तपासा.",
     })),
     text: {
       en: { name: "Lek Ladki Yojana", benefit: "₹1,01,000 in stages for your daughter, from birth until she turns 18.",
