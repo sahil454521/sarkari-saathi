@@ -65,6 +65,8 @@ Production: `npm run build && npm start` serves the app and the API from one pro
 
 `node --env-file=.env scripts/smoke.ts` checks the real Gnani and LLM APIs. It uses a few credits.
 
+Add `?debug=1` to the app URL to see a live mic meter and a log of why each recording ended, which helps tune the silence detection on a phone.
+
 ## Privacy and limits
 
 - No names, phone numbers, Aadhaar or addresses are asked for or stored. Logs hold only method, path, status and timing.
