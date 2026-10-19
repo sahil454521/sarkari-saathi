@@ -10,7 +10,9 @@ import { TurnRequestSchema, runTurn } from "./turn.ts";
 import { createLimiter } from "./limits.ts";
 
 const app = express();
-app.set("trust proxy", 1); // Render sits behind one proxy; needed so req.ip is the caller's IP
+// Render chain measured 2026-10-19: client → Cloudflare → Render LB → internal proxy. With 1, req.ip was Render's
+// internal IP, so every visitor shared one rate-limit bucket. 3 hops makes req.ip the real caller.
+app.set("trust proxy", 3);
 
 // Status and timing only: never log transcripts, text, profile or audio.
 app.use("/api", (req, res, next) => {
