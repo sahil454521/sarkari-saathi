@@ -6,7 +6,7 @@ import type { TurnState } from "../server/turn.ts";
 import type { SchemeCard } from "../server/schemes.ts";
 import { GREETING } from "../server/questions.ts";
 import { nextMicState, startRecording } from "./recorder.ts";
-import type { MicEvent, MicState } from "./recorder.ts";
+import type { MicDebug, MicEvent, MicState } from "./recorder.ts";
 import { blobToBase64, sendTurn, speakUrl } from "./api.ts";
 import { toWav16k } from "./wav.ts";
 import type { ApiError } from "./api.ts";
@@ -20,6 +20,8 @@ const MAX_RECORD_MS = 25_000;
 // Phone speakers lag the audio element's "ended" by a few hundred ms (more over Bluetooth). Opening the mic
 // sooner switches Android to call mode, which turns the last words down and records them as "noise".
 const LISTEN_DELAY_MS = 700;
+// shortcut: mic diagnostics panel, shown only with ?debug=1; remove once mic tuning on real phones is settled
+const DEBUG = new URLSearchParams(location.search).has("debug");
 
 export default function App() {
   const [lang, setLang] = useState<Lang | null>(null);
@@ -45,6 +47,30 @@ export default function App() {
   const conv = useRef(0); // bumped on start over / new language, so replies from an older conversation are dropped
   const langRef = useRef<Lang | null>(null);
   const listenTimer = useRef(0);
+  // ?debug=1 only
+  const [meter, setMeter] = useState<MicDebug | null>(null);
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const endReason = useRef("");
+  const listen = useRef({ n: 0, t0: 0, peak: 0, longestPause: 0, lastQuiet: 0, last: null as MicDebug | null });
+
+  function dlog(msg: string) {
+    if (DEBUG) setDebugLog((log) => [...log.slice(-40), `${(performance.now() / 1000).toFixed(1)}s ${msg}`]);
+  }
+
+  function onMicDebug(d: MicDebug) {
+    const s = listen.current;
+    s.peak = Math.max(s.peak, d.level);
+    if ((d.quietMs ?? 0) < s.lastQuiet) s.longestPause = Math.max(s.longestPause, s.lastQuiet); // a pause just ended
+    s.lastQuiet = d.quietMs ?? 0;
+    s.last = d;
+    setMeter(d);
+  }
+
+  function logListenEnd() {
+    const s = listen.current, d = s.last;
+    dlog(`listen ${s.n} end: ${endReason.current || "?"} after ${((performance.now() - s.t0) / 1000).toFixed(1)} s` +
+      ` · noise ${d?.noise.toFixed(3)} thr ${d?.threshold.toFixed(3)} · peak ${s.peak.toFixed(3)} · longest pause ${(s.longestPause / 1000).toFixed(1)} s`);
+  }
 
   /** listenAfter: open the mic when the reply finishes, so the conversation runs hands-free. */
   function play(src: string, listenAfter = false) {
@@ -55,11 +81,21 @@ export default function App() {
     a.src = src;
     a.onended = () => {
       setSpeaking(false);
-      if (listenAfter) listenTimer.current = window.setTimeout(() => step("key"), LISTEN_DELAY_MS);
+      dlog(`reply audio ended${listenAfter ? ", listening in 0.7 s" : ""}`);
+      if (listenAfter) listenSoon();
     };
     setReplay(null);
     setSpeaking(true);
-    a.play().catch(() => { setSpeaking(false); setReplay({ src, listenAfter }); }); // still blocked: offer a play button
+    a.play().catch((err) => { // still blocked: offer a play button
+      if ((err as Error).name === "AbortError") return; // we paused it ourselves (mic pressed), not a block
+      dlog(`reply audio blocked by the browser: ${(err as Error).name}`);
+      setSpeaking(false);
+      setReplay({ src, listenAfter });
+    });
+  }
+
+  function listenSoon() {
+    listenTimer.current = window.setTimeout(() => step("key"), LISTEN_DELAY_MS);
   }
 
   function stopAudio() {
@@ -86,23 +122,35 @@ export default function App() {
       stopAudio();
       setError(null);
       setTapMode(e !== "down"); // hands-free and Space starts end on silence or a tap, not on release
+      if (DEBUG) {
+        const s = listen.current;
+        Object.assign(s, { n: s.n + 1, t0: performance.now(), peak: 0, longestPause: 0, lastQuiet: 0, last: null });
+        dlog(`listen ${s.n} start (${e === "key" ? "auto or keyboard" : "button"})`);
+      }
+      endReason.current = "";
       // Speech then silence sends the turn like a release would; hearing nothing just stops listening.
-      recording.current = startRecording((why) => step(why === "speech-ended" ? "timeout" : "cancel"));
-      recording.current.catch(() => {
+      recording.current = startRecording((why) => {
+        endReason.current = why === "speech-ended" ? "2 s silence" : "no speech for 8 s";
+        step(why === "speech-ended" ? "timeout" : "cancel");
+      }, DEBUG ? onMicDebug : undefined);
+      recording.current.catch((err) => {
+        dlog(`mic failed to open: ${(err as Error).name}`);
         clearTimeout(timer.current);
         recording.current = null;
         setMicState("idle");
         setError(UI.micDenied[l]);
         setTyping(true);
       });
-      timer.current = window.setTimeout(() => step("timeout"), MAX_RECORD_MS);
+      timer.current = window.setTimeout(() => { endReason.current = "25 s cap"; step("timeout"); }, MAX_RECORD_MS);
     } else if (action === "cancel") {
+      if (DEBUG) logListenEnd();
       clearTimeout(timer.current);
       recording.current?.then((r) => r.stop()).catch(() => {});
       recording.current = null;
     } else if (e === "up" && state === "recording") {
       setTapMode(true); // a quick tap: keep listening until the next tap
     } else if (action === "stop") {
+      if (DEBUG) logListenEnd();
       clearTimeout(timer.current);
       const rec = recording.current;
       recording.current = null;
@@ -116,19 +164,32 @@ export default function App() {
     const l = langRef.current!;
     try {
       const base = { lang: l, state: turnRef.current };
-      const res = await sendTurn("text" in input
-        ? { ...base, text: input.text }
-        : await toWav16k(input.blob).then(async (wav) => ({ ...base, audio: await blobToBase64(wav), mime: wav.type })));
+      // A press right after the mic opens leaves a clip too short to decode: treat it as nothing heard.
+      const wav = "blob" in input ? await toWav16k(input.blob).catch(() => null) : null;
+      if ("blob" in input && !wav) {
+        dlog("recording too short to decode, listening again");
+        if (id === conv.current) listenSoon();
+        return;
+      }
+      const res = await sendTurn(wav ? { ...base, audio: await blobToBase64(wav), mime: wav.type } : { ...base, text: (input as { text: string }).text });
       if (id !== conv.current) return;
       turnRef.current = res.state;
       setTurn(res.state);
       setHeard(res.heard);
+      dlog(`heard: "${res.heard}"`);
       setSaid(res.reply);
       setPhase(res.phase);
       setSchemes(res.schemes);
       // Keep listening after spoken turns; someone typing may not be able to speak.
-      if (res.audio) play(`data:audio/mpeg;base64,${res.audio}`, res.phase === "asking" && "blob" in input);
+      const listenAfter = res.phase === "asking" && "blob" in input;
+      if (res.audio) play(`data:audio/mpeg;base64,${res.audio}`, listenAfter);
+      else {
+        // TTS failed (e.g. Gnani rate limit): the reply is on screen, so keep the conversation going anyway.
+        dlog("reply came back without audio");
+        if (listenAfter) listenSoon();
+      }
     } catch (err) {
+      dlog(`turn failed: ${(err as Error).message}`);
       if (id === conv.current) setError(ERRORS[(err as Error).message as ApiError]?.[l] ?? ERRORS.upstream[l]);
     } finally {
       if (id === conv.current) finish();
@@ -183,6 +244,7 @@ export default function App() {
       if (e.key !== " " || e.repeat) return;
       if ((e.target as HTMLElement).closest("input, textarea, a, button:not(.mic)")) return;
       e.preventDefault();
+      endReason.current = "keyboard";
       step("key");
     };
     window.addEventListener("keydown", onKey);
@@ -255,11 +317,16 @@ export default function App() {
                 className={`mic grid size-28 place-items-center rounded-full text-sheet shadow-lg transition-colors ${mic === "recording" ? "listening bg-stamp" : mic === "busy" ? "cursor-wait bg-ink/60" : "bg-ink"}`}
                 aria-label={`${UI.micLabel[lang]}: ${status}`}
                 aria-pressed={mic === "recording"}
-                onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); downAt.current = performance.now(); step("down"); }}
-                onPointerUp={() => step("up")}
-                onPointerCancel={() => step("up")}
+                onPointerDown={(e) => {
+                  e.currentTarget.setPointerCapture(e.pointerId);
+                  downAt.current = performance.now();
+                  endReason.current = "mic button pressed";
+                  step("down");
+                }}
+                onPointerUp={() => { endReason.current = `mic button released (held ${Math.round(performance.now() - downAt.current)} ms)`; step("up"); }}
+                onPointerCancel={() => { endReason.current = "touch cancelled by the browser"; step("up"); }}
                 onContextMenu={(e) => e.preventDefault()}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); step("key"); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); endReason.current = "keyboard"; step("key"); } }}
               >
                 {mic === "busy" ? <Dots /> : <MicIcon />}
               </button>
@@ -280,6 +347,23 @@ export default function App() {
             </div>
           )}
         </>
+      )}
+      {DEBUG && lang && (
+        <section aria-label="Mic debug" className="mb-2 rounded-lg border border-rule bg-sheet p-2 font-mono text-xs text-print">
+          {/* bar: live loudness; red line: the "speaking" threshold */}
+          <div className="relative h-3 rounded bg-rule/50">
+            <div className="h-3 rounded bg-ink" style={{ width: `${Math.min(100, ((meter?.level ?? 0) / 0.3) * 100)}%` }} />
+            <div className="absolute top-0 h-3 w-0.5 bg-alert" style={{ left: `${Math.min(100, ((meter?.threshold ?? 0) / 0.3) * 100)}%` }} />
+          </div>
+          <p className="mt-1">
+            level {meter?.level.toFixed(3) ?? "-"} · thr {meter?.threshold.toFixed(3) ?? "-"} · noise {meter?.noise.toFixed(3) ?? "-"} · quiet {meter?.quietMs ?? "-"} ms
+          </p>
+          <p>
+            echoCancel {String(meter?.settings.echoCancellation)} · noiseSupp {String(meter?.settings.noiseSuppression)} · autoGain {String(meter?.settings.autoGainControl)}
+          </p>
+          <button onClick={() => navigator.clipboard?.writeText(debugLog.join("\n"))} className="my-1 min-h-10 rounded border border-ink px-3">Copy log</button>
+          <pre className="max-h-56 overflow-auto whitespace-pre-wrap">{debugLog.join("\n")}</pre>
+        </section>
       )}
       <footer className="border-t border-rule py-3 text-center text-sm text-print">{UI.footer[lang ?? "hi"]}</footer>
     </div>

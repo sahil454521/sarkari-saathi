@@ -44,3 +44,14 @@ test("steady background noise is not mistaken for speech", () =>
   expect(run([[0.06, 9000]])).toEqual({ r: "no-speech", t: 8000 }));
 test("speech is still detected over a noisy background", () =>
   expect(run([[0.06, 300], [0.3, 1500], [0.06, 5000]])).toEqual({ r: "speech-ended", t: 1400 + 2000 }));
+
+test("inspect reports the calibrated noise, the speech threshold and the quiet time", () => {
+  const endpoint = createEndpointer();
+  [0, 100, 200].forEach(t => endpoint(0.01, t)); // calibration
+  endpoint(0.2, 300);                             // speech
+  endpoint(0.01, 900);
+  const s = endpoint.inspect(900);
+  expect(s.noise).toBeCloseTo(0.01);
+  expect(s.threshold).toBeCloseTo(0.03);
+  expect(s.quietMs).toBe(600);
+});

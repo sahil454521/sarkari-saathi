@@ -21,22 +21,31 @@ export type Endpoint = "listening" | "speech-ended" | "no-speech";
  * The first 300 ms measure the room's background noise, so a noisy home and a quiet room both work.
  * silenceMs is 2 s because 1.2 s cut people off while they paused to think mid-answer; a tap still sends at once.
  */
-export function createEndpointer(silenceMs = 2000, noSpeechMs = 8000): (level: number, now: number) => Endpoint {
+export function createEndpointer(silenceMs = 2000, noSpeechMs = 8000) {
   let start: number | null = null, noise = 0, samples = 0, lastLoud: number | null = null;
-  return (level, now) => {
+  const threshold = () => Math.max(0.02, noise * 3);
+  const endpoint = (level: number, now: number): Endpoint => {
     start ??= now;
     if (now - start < 300) {
       noise = (noise * samples + level) / ++samples;
       return "listening";
     }
-    if (level > Math.max(0.02, noise * 3)) lastLoud = now;
+    if (level > threshold()) lastLoud = now;
     if (lastLoud !== null) return now - lastLoud >= silenceMs ? "speech-ended" : "listening";
     return now - start >= noSpeechMs ? "no-speech" : "listening";
   };
+  // For the ?debug=1 meter.
+  const inspect = (now: number) => ({ noise, threshold: threshold(), quietMs: lastLoud === null ? null : now - lastLoud });
+  return Object.assign(endpoint, { inspect });
 }
 
+export type MicDebug = { level: number; noise: number; threshold: number; quietMs: number | null; settings: MediaTrackSettings };
+
 /** Records with the browser's default format; onEndpoint fires once when the speaker stops (or never starts). */
-export async function startRecording(onEndpoint?: (why: Exclude<Endpoint, "listening">) => void): Promise<{ stop(): Promise<Blob> }> {
+export async function startRecording(
+  onEndpoint?: (why: Exclude<Endpoint, "listening">) => void,
+  onDebug?: (d: MicDebug) => void,
+): Promise<{ stop(): Promise<Blob> }> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const ctx = new AudioContext();
   const release = () => { clearInterval(tick); stream.getTracks().forEach((t) => t.stop()); ctx.close(); };
@@ -48,9 +57,12 @@ export async function startRecording(onEndpoint?: (why: Exclude<Endpoint, "liste
     ctx.createMediaStreamSource(stream).connect(analyser);
     const samples = new Float32Array(analyser.fftSize);
     const endpoint = createEndpointer();
+    const settings = stream.getAudioTracks()[0]?.getSettings() ?? {};
     tick = window.setInterval(() => {
       analyser.getFloatTimeDomainData(samples);
-      const r = endpoint(Math.sqrt(samples.reduce((s, x) => s + x * x, 0) / samples.length), performance.now());
+      const level = Math.sqrt(samples.reduce((s, x) => s + x * x, 0) / samples.length), now = performance.now();
+      const r = endpoint(level, now);
+      onDebug?.({ level, ...endpoint.inspect(now), settings });
       if (r !== "listening") { clearInterval(tick); onEndpoint?.(r); }
     }, 100);
 
