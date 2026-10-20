@@ -1,4 +1,6 @@
 import type { Field } from "../../server/profile.ts";
+import { GREETING, cardSpeech } from "../../server/questions.ts";
+import { SCHEMES } from "../../server/schemes.ts";
 import data from "../public/data.json";
 
 export const FPS = 30;
@@ -7,7 +9,7 @@ const f = (s: number) => Math.round(s * FPS);
 export type Durations = Record<string, number>; // seconds, keyed by audio file name
 export type Who = "sunita" | "app" | "narrator";
 type Span = { from: number; to: number };
-export type AudioCue = { file: string; from: number; frames: number; fadeOut?: boolean };
+export type AudioCue = { file: string; from: number; frames: number };
 export type Caption = Span & { text: string; who: Who };
 
 // English subtitles for Sunita's Marathi lines (the Marathi is on screen in the app's "you said" line).
@@ -52,17 +54,17 @@ export function buildTimeline(d: Durations) {
     heard.push({ at: f(end + 0.25), text: turns[i].heard });
     return end + 0.25;
   };
-  const appAsks = (afterTurn: number, at: number) => {
-    const q = turns[afterTurn].question!;
+  const appAsks = (q: { mr: string; en: string; audio: string }, at: number) => {
     questions.push({ at: f(at), mr: q.mr });
     const end = play(q.audio, at, "app", q.en);
     appSpeaking.push({ from: f(at), to: f(end) });
     return end + 0.1;
   };
 
-  // 1. Hook: she speaks, the form fills itself.
+  // 1. Hook: the app greets her, she answers, the form fills itself.
   const hook = { from: 0, to: 0 };
-  let t = sunitaSays(0, 0.3);
+  let t = appAsks({ mr: GREETING.mr, en: GREETING.en, audio: data.greeting.audio }, 0.2);
+  t = sunitaSays(0, t);
   t = fillFields(0, t, 0.2) + 0.3;
   hook.to = f(t);
 
@@ -72,22 +74,22 @@ export function buildTimeline(d: Durations) {
 
   // 3. The ration-card question and the one-sentence, three-field answer, then the hands-free montage.
   const convo = { from: f(t), to: 0 };
-  t = appAsks(0, t + 0.15);
+  t = appAsks(turns[0].question!, t + 0.15);
   t = sunitaSays(1, t);
   const wow = { from: f(t), to: 0 };
   t = fillFields(1, t, 0.28) + 0.7;
   wow.to = f(t);
   for (let i = 2; i < 6; i++) {
-    t = appAsks(i - 1, t); // every question is spoken, as in the app, so each answer has its question
+    t = appAsks(turns[i - 1].question!, t); // every question is spoken, as in the app, so each answer has its question
     t = sunitaSays(i, t);
     t = fillFields(i, t, 0.2) + 0.2;
   }
   convo.to = f(t);
 
-  // 4. Results: cards and stamps, then a card read aloud.
+  // 4. Results: cards and stamps, then a card read aloud to the end.
   const results = { from: f(t), to: 0, tap: f(t + 2.8) };
-  audio.push({ file: data.card.audio, from: results.tap, frames: f(4.8), fadeOut: true });
-  t += 7.6;
+  const kisan = SCHEMES.find((s) => s.id === data.card.id)!;
+  t = play(data.card.audio, t + 2.8, "app", cardSpeech(kisan.text.en, "en")) + 0.5;
   results.to = f(t);
 
   // 5. How it works.
@@ -109,5 +111,5 @@ export type Timeline = ReturnType<typeof buildTimeline>;
 export const AUDIO_FILES = [
   ...turns.map((_, i) => `sunita-${i + 1}.mp3`),
   ...turns.flatMap((t) => (t.question ? [t.question.audio] : [])),
-"narration-how.mp3", "narration-end.mp3", data.card.audio,
+  data.greeting.audio, "narration-how.mp3", "narration-end.mp3", data.card.audio,
 ];

@@ -29,8 +29,7 @@ export function Showcase({ durations }: { durations: Durations }) {
       {frame >= tl.end.from && <EndScene from={tl.end.from} />}
       {tl.audio.map((a, i) => (
         <Sequence key={i} from={a.from} durationInFrames={a.frames} layout="none">
-          <Audio src={staticFile(`audio/${a.file}`)}
-            volume={(f) => (a.fadeOut ? interpolate(f, [a.frames - 20, a.frames], [1, 0], { extrapolateLeft: "clamp" }) : 1)} />
+          <Audio src={staticFile(`audio/${a.file}`)} />
         </Sequence>
       ))}
       <Captions tl={tl} />
@@ -59,7 +58,7 @@ function PhoneScene({ tl }: { tl: Timeline }) {
   // The hook is on screen from frame 0 (it is the thumbnail); after the title the phone slides back in.
   const enter = frame < tl.title.from ? 1 : spring({ frame: frame - tl.convo.from, fps, config: { damping: 200 } });
   // The results page scrolls as a whole, header included.
-  const scroll = interpolate(frame - tl.results.from, [120, 220], [0, -330], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  const scroll = interpolate(frame - tl.results.from, [120, 360], [0, -460], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
 
   return (
     <AbsoluteFill style={{ alignItems: "center", paddingTop: 40 }}>
