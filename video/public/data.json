@@ -1,0 +1,312 @@
+{
+  "greeting": {
+    "text": "नमस्कार! मी सरकारी साथी. तुमच्याबद्दल सांगा: वय, काम, आणि तुम्ही कुठे राहता?",
+    "audio": "greeting.mp3"
+  },
+  "turns": [
+    {
+      "said": "sunita-1.mp3",
+      "heard": "मी 45 वर्षांची शेतकरी बाई आहे नाशिकला राहते",
+      "reply": "तुम्ही नाशिकच्या राहणाऱ्या ४५ वर्षांच्या शेतकरी महिला आहात, हे मला समजले. तुमचं रेशन कार्ड कोणत्या रंगाचं आहे: पिवळं, केशरी, पांढरं, की नाही?",
+      "replyAudio": "reply-1.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer"
+      },
+      "asked": [
+        "rationCard"
+      ],
+      "phase": "asking",
+      "schemes": [],
+      "question": {
+        "field": "rationCard",
+        "mr": "तुमचं रेशन कार्ड कोणत्या रंगाचं आहे: पिवळं, केशरी, पांढरं, की नाही?",
+        "en": "What colour is your ration card: yellow, orange, white, or none?",
+        "audio": "question-1.mp3"
+      }
+    },
+    {
+      "said": "sunita-2.mp3",
+      "heard": "पिवळं रेशनकार्ड आहे 2 वर्षांची मुलगी आहे घरचं वर्षाचं उत्पन्न 90,000 आहे",
+      "reply": "तुमचं पिवळं रेशन कार्ड, दोन वर्षांची मुलगी आणि कुटुंबाचं वार्षिक उत्पन्न मला समजलं आहे. तुम्ही आयकर भरता का?",
+      "replyAudio": "reply-2.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer",
+        "annualFamilyIncome": 90000,
+        "rationCard": "yellow",
+        "daughterAges": [
+          2
+        ]
+      },
+      "asked": [
+        "rationCard",
+        "paysIncomeTax"
+      ],
+      "phase": "asking",
+      "schemes": [],
+      "question": {
+        "field": "paysIncomeTax",
+        "mr": "तुम्ही आयकर भरता का?",
+        "en": "Do you pay income tax?",
+        "audio": "question-2.mp3"
+      }
+    },
+    {
+      "said": "sunita-3.mp3",
+      "heard": "नाही मी आयकर भरत नाही",
+      "reply": "तुम्ही आयकर भरत नाही, हे मला समजले. शेतजमीन तुमच्या नावावर आहे का?",
+      "replyAudio": "reply-3.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer",
+        "annualFamilyIncome": 90000,
+        "rationCard": "yellow",
+        "daughterAges": [
+          2
+        ],
+        "paysIncomeTax": false
+      },
+      "asked": [
+        "rationCard",
+        "paysIncomeTax",
+        "ownsFarmland"
+      ],
+      "phase": "asking",
+      "schemes": [],
+      "question": {
+        "field": "ownsFarmland",
+        "mr": "शेतजमीन तुमच्या नावावर आहे का?",
+        "en": "Is the farmland in your own name?",
+        "audio": "question-3.mp3"
+      }
+    },
+    {
+      "said": "sunita-4.mp3",
+      "heard": "हो जमीन माझ्या नावावर आहे",
+      "reply": "शेतजमीन तुमच्या नावावर आहे, हे मला समजले. तुमच्या घरी एलपीजी गॅस जोडणी आहे का?",
+      "replyAudio": "reply-4.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer",
+        "annualFamilyIncome": 90000,
+        "rationCard": "yellow",
+        "daughterAges": [
+          2
+        ],
+        "paysIncomeTax": false,
+        "ownsFarmland": true
+      },
+      "asked": [
+        "rationCard",
+        "paysIncomeTax",
+        "ownsFarmland",
+        "hasLpgConnection"
+      ],
+      "phase": "asking",
+      "schemes": [],
+      "question": {
+        "field": "hasLpgConnection",
+        "mr": "तुमच्या घरी एलपीजी गॅस जोडणी आहे का?",
+        "en": "Does your home have an LPG gas connection?",
+        "audio": "question-4.mp3"
+      }
+    },
+    {
+      "said": "sunita-5.mp3",
+      "heard": "हो गॅस आहे",
+      "reply": "तुमच्याकडे गॅस जोडणी आहे, हे मला समजले. तुम्ही सध्या गर्भवती आहात का?",
+      "replyAudio": "reply-5.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer",
+        "annualFamilyIncome": 90000,
+        "rationCard": "yellow",
+        "daughterAges": [
+          2
+        ],
+        "paysIncomeTax": false,
+        "ownsFarmland": true,
+        "hasLpgConnection": true
+      },
+      "asked": [
+        "rationCard",
+        "paysIncomeTax",
+        "ownsFarmland",
+        "hasLpgConnection",
+        "isPregnant"
+      ],
+      "phase": "asking",
+      "schemes": [],
+      "question": {
+        "field": "isPregnant",
+        "mr": "तुम्ही सध्या गर्भवती आहात का?",
+        "en": "Are you pregnant right now?",
+        "audio": "question-5.mp3"
+      }
+    },
+    {
+      "said": "sunita-6.mp3",
+      "heard": "नाही",
+      "reply": "तुम्ही सध्या गर्भवती नाही आहात, हे मला समजले. तुम्ही या 8 योजनांसाठी पात्र असू शकता: महात्मा ज्योतिराव फुले जन आरोग्य योजना, सुकन्या समृद्धी योजना, पीएम-किसान सन्मान निधी, नमो शेतकरी महासन्मान निधी, प्रधानमंत्री पीक विमा योजना, आयुष्मान भारत (पीएम-जय), मुख्यमंत्री माझी लाडकी बहीण योजना, लेक लाडकी योजना. सविस्तर माहिती स्क्रीनवर आहे.",
+      "replyAudio": "reply-6.mp3",
+      "profile": {
+        "age": 45,
+        "gender": "female",
+        "state": "Maharashtra",
+        "occupation": "farmer",
+        "annualFamilyIncome": 90000,
+        "rationCard": "yellow",
+        "daughterAges": [
+          2
+        ],
+        "paysIncomeTax": false,
+        "ownsFarmland": true,
+        "hasLpgConnection": true,
+        "isPregnant": false
+      },
+      "asked": [
+        "rationCard",
+        "paysIncomeTax",
+        "ownsFarmland",
+        "hasLpgConnection",
+        "isPregnant"
+      ],
+      "phase": "results",
+      "schemes": [
+        {
+          "id": "mjpjay",
+          "status": "eligible",
+          "name": "महात्मा ज्योतिराव फुले जन आरोग्य योजना",
+          "benefit": "महाराष्ट्रातील अंगीकृत रुग्णालयांत प्रत्येक कुटुंबाला वर्षाला ₹5 लाखांपर्यंत कॅशलेस उपचार.",
+          "documents": [
+            "रेशन कार्ड किंवा महाराष्ट्र अधिवास प्रमाणपत्र",
+            "आधार कार्ड"
+          ],
+          "url": "https://www.jeevandayee.gov.in"
+        },
+        {
+          "id": "sukanya",
+          "status": "eligible",
+          "name": "सुकन्या समृद्धी योजना",
+          "benefit": "मुलीसाठी पोस्ट ऑफिस किंवा बँकेत जास्त व्याजाचे, करमुक्त बचत खाते, वर्षाला ₹250 पासून.",
+          "documents": [
+            "मुलीचा जन्म दाखला",
+            "पालकांचे आधार व पॅन",
+            "पत्त्याचा पुरावा"
+          ],
+          "url": "https://www.indiapost.gov.in"
+        },
+        {
+          "id": "pm-kisan",
+          "status": "likely",
+          "name": "पीएम-किसान सन्मान निधी",
+          "benefit": "दरवर्षी ₹6,000 थेट तुमच्या बँक खात्यात, ₹2,000 च्या तीन हप्त्यांत.",
+          "documents": [
+            "आधार कार्ड",
+            "जमिनीचा 7/12 उतारा",
+            "बँक पासबुक"
+          ],
+          "url": "https://pmkisan.gov.in",
+          "note": "जमीन 1 फेब्रुवारी 2019 पर्यंत कुटुंबाच्या नावावर असावी (त्यानंतर फक्त वारसाने). कुटुंबात आयकर भरणारे, सरकारी कर्मचारी, ₹10,000+ मासिक पेन्शनधारक किंवा डॉक्टर, वकील असे नोंदणीकृत व्यावसायिक असल्यास योजना मिळत नाही."
+        },
+        {
+          "id": "namo-shetkari",
+          "status": "likely",
+          "name": "नमो शेतकरी महासन्मान निधी",
+          "benefit": "पीएम-किसानच्या वर महाराष्ट्र शासनाकडून दरवर्षी आणखी ₹6,000, वेगळा अर्ज लागत नाही.",
+          "documents": [
+            "आधार कार्ड",
+            "पीएम-किसान नोंदणी",
+            "आधारशी जोडलेले बँक खाते"
+          ],
+          "url": "https://nsmny.mahait.org",
+          "note": "महाराष्ट्रातील पीएम-किसान लाभार्थ्यांना आपोआप मिळते, त्यामुळे पीएम-किसानच्या अटी लागू आहेत."
+        },
+        {
+          "id": "pmfby",
+          "status": "likely",
+          "name": "प्रधानमंत्री पीक विमा योजना",
+          "benefit": "कमी हप्त्यात पिकाचा विमा, दुष्काळ, पूर आणि कीड यांसारख्या नुकसानीपासून संरक्षण.",
+          "documents": [
+            "आधार कार्ड",
+            "जमिनीचा उतारा किंवा कुळाचा करार",
+            "बँक पासबुक",
+            "पेरणीचे स्वयंघोषणापत्र"
+          ],
+          "url": "https://pmfby.gov.in",
+          "note": "फक्त या हंगामात तुमच्या भागात अधिसूचित पिकांसाठी; अंतिम तारखेपूर्वी बँक किंवा CSC मध्ये नोंदणी करा."
+        },
+        {
+          "id": "pm-jay",
+          "status": "likely",
+          "name": "आयुष्मान भारत (पीएम-जय)",
+          "benefit": "यादीतील रुग्णालयांत प्रत्येक कुटुंबाला वर्षाला ₹5 लाखांपर्यंत मोफत उपचार.",
+          "documents": [
+            "आधार कार्ड",
+            "रेशन कार्ड"
+          ],
+          "url": "https://beneficiary.nha.gov.in",
+          "note": "कुटुंबाचे नाव लाभार्थी यादीत असणे आवश्यक; beneficiary.nha.gov.in किंवा जवळच्या CSC मध्ये तपासा."
+        },
+        {
+          "id": "ladki-bahin",
+          "status": "likely",
+          "name": "मुख्यमंत्री माझी लाडकी बहीण योजना",
+          "benefit": "दरमहा ₹1,500 पर्यंत, थेट आधारशी जोडलेल्या बँक खात्यात.",
+          "documents": [
+            "आधार कार्ड",
+            "महाराष्ट्र अधिवास प्रमाणपत्र किंवा रेशन कार्ड",
+            "उत्पन्नाचा दाखला (पिवळे किंवा केशरी रेशन कार्ड चालेल)",
+            "आधारशी जोडलेले बँक खाते"
+          ],
+          "url": "https://ladakibahin.maharashtra.gov.in",
+          "note": "तुम्हाला आधीच नमो शेतकरी किंवा दुसरी राज्य मदत मिळत असल्यास फक्त ₹1,500 पर्यंतची उरलेली रक्कम मिळते (नमो शेतकरी शेतकऱ्यांना ₹500). कुटुंबाकडे चारचाकी असल्यास किंवा कुटुंबात सरकारी कर्मचारी असल्यास योजना मिळत नाही."
+        },
+        {
+          "id": "lek-ladki",
+          "status": "likely",
+          "name": "लेक लाडकी योजना",
+          "benefit": "मुलीच्या जन्मापासून 18 वर्षांपर्यंत टप्प्याटप्प्याने एकूण ₹1,01,000.",
+          "documents": [
+            "मुलीचा जन्म दाखला",
+            "पिवळे किंवा केशरी रेशन कार्ड",
+            "उत्पन्नाचा दाखला",
+            "आई-वडिलांचे आधार",
+            "बँक पासबुक"
+          ],
+          "url": "https://womenchild.maharashtra.gov.in",
+          "note": "फक्त 1 एप्रिल 2023 किंवा त्यानंतर जन्मलेल्या, कुटुंबातील पहिल्या किंवा दुसऱ्या अपत्य असलेल्या मुलींसाठी; जन्म दाखला तपासा."
+        }
+      ]
+    }
+  ],
+  "card": {
+    "id": "pm-kisan",
+    "audio": "card-pm-kisan.mp3"
+  },
+  "narration": {
+    "title": {
+      "text": "Meet Sarkari Saathi. Find the government schemes you may qualify for, just by talking.",
+      "audio": "narration-title.mp3"
+    },
+    "how": {
+      "text": "Gnani Prisma hears her. A small model picks out the facts. Plain rules decide, so it cannot invent a scheme. Gnani Timbre speaks back.",
+      "audio": "narration-how.mp3"
+    },
+    "end": {
+      "text": "Sarkari Saathi. Built on Gnani AI.",
+      "audio": "narration-end.mp3"
+    }
+  }
+}
