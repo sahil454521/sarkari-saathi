@@ -1,10 +1,12 @@
 # Post drafts
 
-Upload the 60-second video directly to each post (not as a YouTube link). Tag Gnani AI's page by typing "@Gnani" and picking it from the list, and check their exact handle on X. If a family member's story is behind this project, add it as a second paragraph: a true personal line will do more than anything below.
+Upload the video (`video/out/sarkari-saathi-demo.mp4`, 78 s) directly to each post (not as a YouTube link). Tag Gnani AI's page by typing "@Gnani" and picking it from the list, and check their exact handle on X. If a family member's story is behind this project, add it as a second paragraph: a true personal line will do more than anything below.
 
 The demo runs on Gemini Flash-Lite for the fact-extraction step, so the posts say so. The contest rules ban misleading demos.
 
 ## LinkedIn
+
+Posted 2026-10-20: https://www.linkedin.com/feed/update/urn:li:activity:7518269164248289280/
 
 > आप बोलिए, फ़ॉर्म अपने-आप भरेगा।
 > Speak, and the form fills itself in.
@@ -13,7 +15,7 @@ The demo runs on Gemini Flash-Lite for the fact-extraction step, so the posts sa
 >
 > For the Great Indian AI Internship Challenge I built Sarkari Saathi. You talk to it in Marathi, Hindi or English and it talks back, with no buttons to press between turns: it asks a short question, listens, and writes your answer into a form on screen while you speak.
 >
-> In the demo, one Marathi sentence fills three fields at once: ration card, daughter's age and family income. Four short answers later she sees 8 central and Maharashtra schemes she may qualify for, with the documents to carry, and can tap any card to hear it read aloud.
+> In the demo, one Marathi sentence fills three fields at once: ration card, daughter's age and family income. Four short answers later she sees 8 central and Maharashtra schemes she may qualify for, with the documents to carry, and can tap any card to hear it read aloud. (Sunita is an invented persona with a synthetic ElevenLabs voice; everything the app says and shows is its real output.)
 >
 > How it works:
 > 1) Gnani Prisma turns her speech into text ("पंचेचाळीस" arrives as 45).
@@ -36,7 +38,7 @@ The demo runs on Gemini Flash-Lite for the fact-extraction step, so the posts sa
 I built Sarkari Saathi: talk to it in Marathi, Hindi or English and it finds the government schemes you may qualify for. You don't read, type or press anything between turns.
 @GnaniAI #GnaniAI #GreatIndianAIInternshipChallenge 🧵 [attach the video]
 
-2/ It asks a question, listens, and writes your answer into a form on screen as you speak. In the demo one Marathi sentence fills three fields at once, and four short answers later there are 8 schemes to check.
+2/ It asks a question, listens, and writes your answer into a form on screen as you speak. In the demo one Marathi sentence fills three fields at once, and four short answers later there are 8 schemes to check. (The demo user's voice is synthetic.)
 
 3/ Stack: Gnani Prisma for speech-to-text, Gnani Timbre for the voice, and a small LLM (Gemini Flash-Lite) that only extracts facts. Each reply comes back in about 3 seconds.
 
