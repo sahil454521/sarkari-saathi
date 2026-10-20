@@ -86,6 +86,8 @@ function PhoneScene({ tl }: { tl: Timeline }) {
         </div>
       </div>
       {frame < tl.title.from && <Banner text="She spoke. The form filled itself." from={tl.fills[0].at} />}
+      {/* She was asked only about the ration card; say out loud that the extra facts are the point. */}
+      {frame >= tl.wow.from && frame < tl.wow.to && <Banner text="One answer. Three fields filled." from={tl.wow.from} />}
       {frame >= tl.convo.from && frame < tl.results.from && <Footnote text="Real app output · waits shortened · Sunita's voice: ElevenLabs (synthetic)" opacity={interpolate(zoom, [1, 1.03], [1, 0], { extrapolateRight: "clamp" })} />}
     </AbsoluteFill>
   );
@@ -313,7 +315,7 @@ function Banner({ text, from }: { text: string; from: number }) {
   const { fps } = useVideoConfig();
   const p = spring({ frame: frame - from, fps, config: { damping: 14 } });
   return (
-    <div style={{ position: "absolute", top: 1665, left: 0, right: 0, display: "flex", justifyContent: "center", transform: `scale(${p})` }}>
+    <div style={{ position: "absolute", top: 1745, left: 0, right: 0, display: "flex", justifyContent: "center", transform: `scale(${p})` }}>
       <div style={{ background: C.stamp, color: C.sheet, fontSize: 52, fontWeight: 700, padding: "18px 40px", borderRadius: 24, transform: "rotate(-2deg)" }}>{text}</div>
     </div>
   );

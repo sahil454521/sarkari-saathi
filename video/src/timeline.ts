@@ -77,7 +77,7 @@ export function buildTimeline(d: Durations) {
   t = appAsks(turns[0].question!, t + 0.15);
   t = sunitaSays(1, t);
   const wow = { from: f(t), to: 0 };
-  t = fillFields(1, t, 0.28) + 0.7;
+  t = fillFields(1, t, 0.28) + 1.0;
   wow.to = f(t);
   for (let i = 2; i < 6; i++) {
     t = appAsks(turns[i - 1].question!, t); // every question is spoken, as in the app, so each answer has its question
