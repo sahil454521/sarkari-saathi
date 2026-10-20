@@ -52,13 +52,9 @@ export function buildTimeline(d: Durations) {
     heard.push({ at: f(end + 0.25), text: turns[i].heard });
     return end + 0.25;
   };
-  const appAsks = (afterTurn: number, at: number, withAudio: boolean) => {
+  const appAsks = (afterTurn: number, at: number) => {
     const q = turns[afterTurn].question!;
     questions.push({ at: f(at), mr: q.mr });
-    if (!withAudio) {
-      captions.push({ from: f(at), to: f(at + 1.3), text: q.en, who: "app" });
-      return at + 1.3;
-    }
     const end = play(q.audio, at, "app", q.en);
     appSpeaking.push({ from: f(at), to: f(end) });
     return end + 0.1;
@@ -70,19 +66,19 @@ export function buildTimeline(d: Durations) {
   t = fillFields(0, t, 0.2) + 0.3;
   hook.to = f(t);
 
-  // 2. Title (text only, to stay under 60 s).
+  // 2. Title (text only, to keep it short).
   const title = { from: f(t), to: f(t + 2.6) };
   t += 2.6;
 
   // 3. The ration-card question and the one-sentence, three-field answer, then the hands-free montage.
   const convo = { from: f(t), to: 0 };
-  t = appAsks(0, t + 0.15, true);
+  t = appAsks(0, t + 0.15);
   t = sunitaSays(1, t);
   const wow = { from: f(t), to: 0 };
   t = fillFields(1, t, 0.28) + 0.7;
   wow.to = f(t);
   for (let i = 2; i < 6; i++) {
-    t = appAsks(i - 1, t, i < 4); // the last two questions show as text to keep the cut under 60 s
+    t = appAsks(i - 1, t); // every question is spoken, as in the app, so each answer has its question
     t = sunitaSays(i, t);
     t = fillFields(i, t, 0.2) + 0.2;
   }
