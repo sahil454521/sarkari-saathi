@@ -34,6 +34,8 @@ Posted 2026-10-20: https://www.linkedin.com/feed/update/urn:li:activity:75182691
 
 ## X thread
 
+Posted 2026-10-22 (tags @GnaniAi): https://x.com/Sahilpathak2105/status/2113327134072795560
+
 1/ आप बोलिए, फ़ॉर्म अपने-आप भरेगा।
 I built Sarkari Saathi: talk to it in Marathi, Hindi or English and it finds the government schemes you may qualify for. You don't read, type or press anything between turns.
 @GnaniAI #GnaniAI #GreatIndianAIInternshipChallenge 🧵 [attach the video]
